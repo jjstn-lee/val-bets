@@ -9,20 +9,34 @@ driver = webdriver.Chrome()
 driver.get("https://bo3.gg/valorant")
 
 try:
-    WebDriverWait(driver, 20).until(EC.title_contains("Valorant"))
+    WebDriverWait(driver, 20).until(
+        EC.title_contains("Valorant")
+    )
 except:
     print("failed to load initial page, quitting...\n")
-    driver.quit()
+    driver.quit()    
 
 try:
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located(By.CLASS_NAME, "vfm__content vfm--outline-none")
+    print("waiting for spoiler pop-up...")
+    WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, ".vfm__content.vfm--outline-none"))
     )
 
-    # need driver to click "spoilers" button next
+    print("done waiting for spoiler pop up, clicking ok...")
 
-except:
-    print("failed to load spoiler pop-up")
+    buttons = driver.find_elements(By.CSS_SELECTOR, ".c-button.c-button--full-width")
+    spoilers_button = buttons[5]
+
+    # spoilers_button.click()
+
+    driver.execute_script("arguments[0].click();", spoilers_button)
+
+    print("clicked ok :)")
+
+except Exception as e:
+    print(f"failed to load spoiler pop-up: {e}")
+    driver.quit()
+    exit(0)
 
 
 # assert "bo3" in driver.title
