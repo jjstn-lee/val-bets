@@ -34,26 +34,18 @@ except Exception as e:
     driver.quit()
     exit(0)
 
-
-# assert "bo3" in driver.title
-# assert "valorant" in driver.title 
-
-
-
-# wait for pop-up first, so matches button should be loaded by now
+# waited for pop-up first, so matches button should be loaded by now
 try:
     print(f"looking for matches button...")
 
     tournaments_button = driver.find_element(By.LINK_TEXT, "Tournaments")
     print(f"clicking tournaments button...")
     tournaments_button.click()
-    # finished_button = driver.find_element(By.LINK_TEXT, "Finished")
-    # print(f"clicking finished button...")
-    # finished_button.click()
-
 except Exception as e:
     print(f"failed to click matches or finished button: {e}")
     driver.quit()
+
+
 
 try:
     WebDriverWait(driver, 20).until(
@@ -61,6 +53,7 @@ try:
     )
 
     finished_button = driver.find_element(By.LINK_TEXT, "Finished")
+    print(f"clicking finished button...")
     finished_button.click()
 
 except Exception as e:
@@ -68,5 +61,19 @@ except Exception as e:
     driver.quit()
     exit(0)
 
+try:
+    WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, ".table-cell.event.c-table-cell-tournament.event--finished"))
+    )
+
+    tournaments = driver.find_elements(By.CSS_SELECTOR, ".table-cell.event.c-table-cell-tournament.event--finished")
+    
+    kickoff_button = tournaments[2]
+    kickoff_button.click()
+
+except Exception as e:
+    print(f"failed to click on kickoffs button: {e}")
+    driver.quit()
+    exit(0)
 
 sleep(10)
