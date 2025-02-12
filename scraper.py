@@ -46,7 +46,6 @@ except Exception as e:
     driver.quit()
 
 
-
 try:
     WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.LINK_TEXT, "Finished"))
@@ -63,7 +62,7 @@ except Exception as e:
 
 try:
     WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, ".table-cell.event.c-table-cell-tournament.event--finished"))
+        EC.presence_of_element_located((By.CSS_SELECTOR, ".table-cell.event.c-table-cell-tournament.event--finished")) # css classes for tournaments
     )
 
     tournaments = driver.find_elements(By.CSS_SELECTOR, ".table-cell.event.c-table-cell-tournament.event--finished")
