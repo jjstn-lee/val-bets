@@ -9,6 +9,8 @@ from selenium.webdriver.support import expected_conditions as EC
 driver = webdriver.Chrome()
 driver.get("https://bo3.gg/valorant")
 
+
+# wait for website to load
 try:
     WebDriverWait(driver, 20).until(
         EC.title_contains("Valorant")
@@ -17,6 +19,7 @@ except Exception as e:
     print(f"failed to load initial page: {e}")
     driver.quit()    
 
+# wait for spoilers pop up and close it
 try:
     WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, ".vfm__content.vfm--outline-none"))
@@ -28,13 +31,13 @@ try:
 
     # use javascript click
     driver.execute_script("arguments[0].click();", spoilers_button)
-
 except Exception as e:
     print(f"failed to handle spoiler pop-up: {e}")
     driver.quit()
     exit(0)
 
-# waited for pop-up first, so matches button should be loaded by now
+# click "tournaments" button
+# bce we waited for pop-up first, button should be loaded by now
 try:
     print(f"looking for matches button...")
 
@@ -45,7 +48,7 @@ except Exception as e:
     print(f"failed to click matches or finished button: {e}")
     driver.quit()
 
-
+# wait for "finished" button and click it
 try:
     WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.LINK_TEXT, "Finished"))
@@ -60,6 +63,7 @@ except Exception as e:
     driver.quit()
     exit(0)
 
+# find and click button for VCT 2025: Americas Kickoff
 try:
     WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, ".table-cell.event.c-table-cell-tournament.event--finished")) # css classes for tournaments
@@ -75,4 +79,20 @@ except Exception as e:
     driver.quit()
     exit(0)
 
+# find and click "results" button
+try:
+    print(f"waiting for all matches button to be clickable")
+    WebDriverWait(driver, 20).until(
+        EC.element_to_be_clickable((By.LINK_TEXT, "Results"))
+    ).click()
+except Exception as e:
+    print(f"failed to handle all matches button: {e}")
+    driver.quit()
+    exit(0)
+
+
+
+
+
 sleep(10)
+
