@@ -5,6 +5,9 @@ from selenium.webdriver.common.keys import Keys
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
+
+import pandas as pd
 
 driver = webdriver.Chrome()
 driver.get("https://bo3.gg/valorant")
@@ -17,7 +20,7 @@ try:
     )
 except Exception as e:
     print(f"failed to load initial page: {e}")
-    driver.quit()    
+    driver.quit()
 
 # wait for spoilers pop up and close it
 try:
@@ -90,7 +93,31 @@ except Exception as e:
     driver.quit()
     exit(0)
 
+try:
+    matches = WebDriverWait(driver, 20).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "a.table-cell.c-global-match-link"))
+    )
 
+    print("Found match link:", matches.get_attribute("href"))
+    print("Found match link:", matches.get_attribute("class"))
+    print("Tag name:", matches.tag_name)  # Should print 'a'
+
+    driver.execute_script("arguments[0].scrollIntoView(true);", matches)
+    driver.execute_script("arguments[0].click();", matches)
+
+    print("i'm here! :)")
+except Exception as e:
+    print(f"failed to handle all matches button: {e}")
+    driver.quit()
+    exit(0)
+
+
+df = pd.DataFrame()
+
+# need to make sure to navigate back
+# def handle_match() {
+
+# }
 
 
 
