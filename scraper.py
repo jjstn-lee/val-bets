@@ -105,21 +105,60 @@ try:
     driver.execute_script("arguments[0].scrollIntoView(true);", matches)
     driver.execute_script("arguments[0].click();", matches)
 
-    print("i'm here! :)")
 except Exception as e:
     print(f"failed to handle all matches button: {e}")
     driver.quit()
     exit(0)
 
 
-df = pd.DataFrame()
+player_data = pd.DataFrame()
 
 # need to make sure to navigate back
-# def handle_match() {
+# for a given match, populate player_data with the proper stats
+def handle_finished_match():
 
-# }
+    print(f"waiting for table to load...")
+    WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, ".o-widget.c-widget-match-scoreboard"))
+    )
 
 
+    print(f"table loaded, finding <> w/ .nickname...")
+    try:
+        # find entire scoreboard
+        scoreboards = driver.find_elements(By.XPATH, "//div[contains(text(), 'Scoreboard')]")
+        
+        for s in scoreboards:
+            print(s.text)
+            print(s.get_attribute("value"))
+
+        top_team = scoreboards[0]
+        bottom_team = scoreboards[1]
+
+
+        top_team.find_element()
+
+
+
+
+        
+        
+        players = driver.find_elements(By.CLASS_NAME, "nickname")
+        
+        player_names = {}
+
+        for n in players:
+            player_names[n.text] = [0, 0, 0]
+        print(player_names)
+
+    except Exception as e:
+        print(f"finding player and stats went wrong: {e}")    
+        print(player_data)
+        driver.quit()
+        exit(0)
+
+
+handle_finished_match()
 
 sleep(10)
 
