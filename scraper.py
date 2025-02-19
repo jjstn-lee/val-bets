@@ -12,7 +12,6 @@ import pandas as pd
 driver = webdriver.Chrome()
 driver.get("https://bo3.gg/valorant")
 
-
 # wait for website to load
 try:
     WebDriverWait(driver, 20).until(
@@ -28,11 +27,9 @@ try:
         EC.presence_of_element_located((By.CSS_SELECTOR, ".vfm__content.vfm--outline-none"))
     )
 
-    # find spoiler pop-up button based on position in DOM
+    # find spoiler pop-up button and click first option
     buttons = driver.find_elements(By.CSS_SELECTOR, ".c-button.c-button--full-width")
     spoilers_button = buttons[5]
-
-    # use javascript click
     driver.execute_script("arguments[0].click();", spoilers_button)
 except Exception as e:
     print(f"failed to handle spoiler pop-up: {e}")
@@ -45,8 +42,6 @@ try:
     WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable((By.LINK_TEXT, "Tournaments"))
     ).click()
-
-    
 except Exception as e:
     print(f"failed to click tournaments button: {e}")
     driver.quit()
@@ -56,7 +51,6 @@ try:
     WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable((By.LINK_TEXT, "Finished"))
     ).click()
-
 except Exception as e:
     print(f"failed to handle finish button: {e}")
     driver.quit()
@@ -89,6 +83,7 @@ except Exception as e:
     driver.quit()
     exit(0)
 
+# find and click on a particular match
 try:
     matches = WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, "a.table-cell.c-global-match-link"))
@@ -106,8 +101,7 @@ except Exception as e:
     driver.quit()
     exit(0)
 
-
-player_data = pd.DataFrame()
+player_data = pd.DataFrame(columns=["kills", "deaths", "assists"], dtype=int)
 
 # need to make sure to navigate back
 # for a given match, populate player_data with the proper stats
@@ -118,49 +112,31 @@ def handle_finished_match():
         EC.presence_of_element_located((By.CSS_SELECTOR, ".o-widget.c-widget-match-scoreboard"))
     )
 
-
     print(f"table loaded, finding <> w/ .nickname...")
     try:
         # find entire scoreboard
         scoreboards = driver.find_elements(By.XPATH, "//div[contains(text(), 'Scoreboard')]/following-sibling::div/div/div/div/following-sibling::div")
         
-        # for s in scoreboards:
-        #     print(s.text)
-        #     print(s.get_attribute("value"))
-
-
-        
-        
+        # separate scoreboards into top and bottom teams
         top_team = scoreboards[0]
         bottom_team = scoreboards[1]
 
-        print(f"top_team class: ", top_team.get_attribute("class"))
-        print(f"bottom_team class: ", bottom_team.get_attribute("class"))
-        
-
+        # find important rows in the scoreboard
         top_rows = top_team.find_elements(By.XPATH, "./div[contains(@class, 'table-row') and not(contains(@class, 'total'))]")
+        bottom_rows = bottom_team.find_elements(By.XPATH, "./div[contains(@class, 'table-row') and not(contains(@class, 'total'))]")
 
         print(f"len of top_rows: {len(top_rows)}")
-
-
-
-        name_row = top_rows[0]
-
-
+        print(f"len of bottom_rows: {len(bottom_rows)}")
 
         for row in top_rows:
             handle_row(row)
 
+        for row in bottom_rows:
+            handle_row(row)
 
 
-        
-        # players = driver.find_elements(By.CLASS_NAME, "nickname")
-        
-        # player_names = {}
 
-        # for n in players:
-        #     player_names[n.text] = [0, 0, 0]
-        # print(player_names)
+
 
     except Exception as e:
         print(f"finding player and stats went wrong: {e}")    
@@ -168,9 +144,15 @@ def handle_finished_match():
         driver.quit()
         exit(0)
 
+
+# take a row and find the player and their corresponding kda
+# insert the information into pandas dataframe
 # row is a WebElement
 def handle_row(row):
-    name = row.find_element(By.XPATH, "./div/div/a/span[2]")
+    global player_data
+
+    # find player name and convert it to a string
+    name = (row.find_element(By.XPATH, "./div/div/a/span[2]")).text
 
     # first find wrapper for kills/deaths/assists; then find deaths and assists based on location of wrapper class
     kda = row.find_element(By.XPATH, "./div/following-sibling::div[2]")
@@ -179,12 +161,27 @@ def handle_row(row):
     deaths = kda.find_element(By.XPATH, "./div[2]/p")
     assists =  kda.find_element(By.XPATH, "./div[3]/p")
 
-    print(f"  player_name: {name.text}")
-    print(f"  kills: {kills.text}")
-    print(f"  deaths: {deaths.text}")
-    print(f"  assists: {assists.text}")
+    kills = int(kills.text)
+    deaths = int(deaths.text)
+    assists = int(assists.text)
+
+    print(f"  player_name: {name}")
+    print(f"  kills: {kills}, type: {type(kills)}")
+    print(f"  deaths: {deaths}, type: {type(deaths)}")
+    print(f"  assists: {assists}, type: {type(assists)}")
+
+    if name not in player_data.index:
+        player_data.loc[name] = [kills, deaths, assists]
+    else:
+        print(f"Before update: {player_data.loc[name]}")  # Debug line
+        player_data.loc[name, "kills"] += kills
+        player_data.loc[name, "deaths"] += deaths
+        player_data.loc[name, "assists"] += assists
+        print(f"After update: {player_data.loc[name]}")  # Debug line
 
 handle_finished_match()
+
+print(player_data)
 
 sleep(10)
 
