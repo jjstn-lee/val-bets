@@ -126,18 +126,24 @@ def handle_finished_match():
     print(f"table loaded, finding <> w/ .nickname...")
     try:
         # find entire scoreboard
-        scoreboards = driver.find_elements(By.XPATH, "//div[contains(text(), 'Scoreboard')]")
+        scoreboards = driver.find_elements(By.XPATH, "//div[contains(text(), 'Scoreboard')]/following-sibling::div/div/div/div/following-sibling::div")
         
-        for s in scoreboards:
-            print(s.text)
-            print(s.get_attribute("value"))
+        # for s in scoreboards:
+        #     print(s.text)
+        #     print(s.get_attribute("value"))
 
+        
         top_team = scoreboards[0]
         bottom_team = scoreboards[1]
 
+        top_rows = top_team.find_elements(By.CSS_SELECTOR, ".table-cell.player")
 
-        top_team.find_element()
+        for players in top_rows:
+            print(players.get_attribute("value"))
 
+
+        # print(top_team.text)
+        # print(bottom_team.text)
 
 
 
