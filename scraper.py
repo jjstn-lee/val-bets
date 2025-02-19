@@ -40,26 +40,22 @@ except Exception as e:
     exit(0)
 
 # click "tournaments" button
-# bce we waited for pop-up first, button should be loaded by now
 try:
-    print(f"looking for matches button...")
+    print("finding and clicking tournaments button...")
+    WebDriverWait(driver, 20).until(
+        EC.element_to_be_clickable((By.LINK_TEXT, "Tournaments"))
+    ).click()
 
-    tournaments_button = driver.find_element(By.LINK_TEXT, "Tournaments")
-    print(f"clicking tournaments button...")
-    tournaments_button.click()
+    
 except Exception as e:
-    print(f"failed to click matches or finished button: {e}")
+    print(f"failed to click tournaments button: {e}")
     driver.quit()
 
 # wait for "finished" button and click it
 try:
     WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.LINK_TEXT, "Finished"))
-    )
-
-    finished_button = driver.find_element(By.LINK_TEXT, "Finished")
-    print(f"clicking finished button...")
-    finished_button.click()
+        EC.element_to_be_clickable((By.LINK_TEXT, "Finished"))
+    ).click()
 
 except Exception as e:
     print(f"failed to handle finish button: {e}")
@@ -132,30 +128,39 @@ def handle_finished_match():
         #     print(s.text)
         #     print(s.get_attribute("value"))
 
+
+        
         
         top_team = scoreboards[0]
         bottom_team = scoreboards[1]
 
-        top_rows = top_team.find_elements(By.CSS_SELECTOR, ".table-cell.player")
+        print(f"top_team class: ", top_team.get_attribute("class"))
+        print(f"bottom_team class: ", bottom_team.get_attribute("class"))
+        
 
-        for players in top_rows:
-            print(players.get_attribute("value"))
+        top_rows = top_team.find_elements(By.XPATH, "./div[contains(@class, 'table-row') and not(contains(@class, 'total'))]")
+
+        print(f"len of top_rows: {len(top_rows)}")
 
 
-        # print(top_team.text)
-        # print(bottom_team.text)
+
+        name_row = top_rows[0]
+
+
+
+        for row in top_rows:
+            handle_row(row)
 
 
 
         
+        # players = driver.find_elements(By.CLASS_NAME, "nickname")
         
-        players = driver.find_elements(By.CLASS_NAME, "nickname")
-        
-        player_names = {}
+        # player_names = {}
 
-        for n in players:
-            player_names[n.text] = [0, 0, 0]
-        print(player_names)
+        # for n in players:
+        #     player_names[n.text] = [0, 0, 0]
+        # print(player_names)
 
     except Exception as e:
         print(f"finding player and stats went wrong: {e}")    
@@ -163,6 +168,21 @@ def handle_finished_match():
         driver.quit()
         exit(0)
 
+# row is a WebElement
+def handle_row(row):
+    name = row.find_element(By.XPATH, "./div/div/a/span[2]")
+
+    # first find wrapper for kills/deaths/assists; then find deaths and assists based on location of wrapper class
+    kda = row.find_element(By.XPATH, "./div/following-sibling::div[2]")
+
+    kills = kda.find_element(By.XPATH, "./div[1]/p")
+    deaths = kda.find_element(By.XPATH, "./div[2]/p")
+    assists =  kda.find_element(By.XPATH, "./div[3]/p")
+
+    print(f"  player_name: {name.text}")
+    print(f"  kills: {kills.text}")
+    print(f"  deaths: {deaths.text}")
+    print(f"  assists: {assists.text}")
 
 handle_finished_match()
 
