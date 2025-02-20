@@ -112,8 +112,8 @@ def handle_finished_match(match):
         top_rows = top_team.find_elements(By.XPATH, "./div[contains(@class, 'table-row') and not(contains(@class, 'total'))]")
         bottom_rows = bottom_team.find_elements(By.XPATH, "./div[contains(@class, 'table-row') and not(contains(@class, 'total'))]")
 
-        print(f"len of top_rows: {len(top_rows)}")
-        print(f"len of bottom_rows: {len(bottom_rows)}")
+        # print(f"len of top_rows: {len(top_rows)}")
+        # print(f"len of bottom_rows: {len(bottom_rows)}")
 
         # process rows
         for row in top_rows:
@@ -134,34 +134,40 @@ def handle_finished_match(match):
 # insert the information into pandas dataframe
 # row is a WebElement
 def handle_row(row):
-    global player_data
+    try:
 
-    # find player name and convert it to a string
-    name = (row.find_element(By.XPATH, "./div/div/a/span[2]")).text
+        global player_data
 
-    # first find wrapper for kills/deaths/assists; then find kills, deaths, and assists based on location of wrapper class
-    kda = row.find_element(By.XPATH, "./div/following-sibling::div[2]")
+        # find player name and convert it to a string
+        name = (row.find_element(By.XPATH, "./div/div/a/span[2]")).text
 
-    kills = kda.find_element(By.XPATH, "./div[1]/p")
-    deaths = kda.find_element(By.XPATH, "./div[2]/p")
-    assists =  kda.find_element(By.XPATH, "./div[3]/p")
+        # first find wrapper for kills/deaths/assists; then find kills, deaths, and assists based on location of wrapper class
+        kda = row.find_element(By.XPATH, "./div/following-sibling::div[2]")
 
-    kills = int(kills.text)
-    deaths = int(deaths.text)
-    assists = int(assists.text)
+        kills = kda.find_element(By.XPATH, "./div[1]/p")
+        deaths = kda.find_element(By.XPATH, "./div[2]/p")
+        assists =  kda.find_element(By.XPATH, "./div[3]/p")
 
-    # debug
-    # print(f"  player_name: {name}")
-    # print(f"  kills: {kills}, type: {type(kills)}")
-    # print(f"  deaths: {deaths}, type: {type(deaths)}")
-    # print(f"  assists: {assists}, type: {type(assists)}")
+        kills = int(kills.text)
+        deaths = int(deaths.text)
+        assists = int(assists.text)
 
-    if name not in player_data.index:
-        player_data.loc[name] = [kills, deaths, assists]
-    else:
-        player_data.at[name, "kills"] = player_data.at[name, "kills"] + kills
-        player_data.at[name, "deaths"] = player_data.at[name, "deaths"] + deaths
-        player_data.at[name, "assists"] = player_data.at[name, "assists"] + assists
+        # debug
+        # print(f"  player_name: {name}")
+        # print(f"  kills: {kills}, type: {type(kills)}")
+        # print(f"  deaths: {deaths}, type: {type(deaths)}")
+        # print(f"  assists: {assists}, type: {type(assists)}")
+
+        if name not in player_data.index:
+            player_data.loc[name] = [kills, deaths, assists]
+        else:
+            player_data.at[name, "kills"] = player_data.at[name, "kills"] + kills
+            player_data.at[name, "deaths"] = player_data.at[name, "deaths"] + deaths
+            player_data.at[name, "assists"] = player_data.at[name, "assists"] + assists
+    except Exception as e:
+        print(f"error in handle_row: {e}")
+        driver.quit()
+        exit(0)
 
 
 # find and handle all matches
@@ -203,5 +209,6 @@ except Exception as e:
 
 print(player_data)
 
-sleep(10)
+player_data.to_csv('player_data.txt', index="True", sep=' ')
 
+sleep(10)
