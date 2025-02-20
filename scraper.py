@@ -83,29 +83,16 @@ except Exception as e:
     driver.quit()
     exit(0)
 
-# find and click on a particular match
-try:
-    matches = WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "a.table-cell.c-global-match-link"))
-    )
-
-    print("Found match link:", matches.get_attribute("href"))
-    print("Found match link:", matches.get_attribute("class"))
-    print("Tag name:", matches.tag_name)  # Should print 'a'
-
-    driver.execute_script("arguments[0].scrollIntoView(true);", matches)
-    driver.execute_script("arguments[0].click();", matches)
-
-except Exception as e:
-    print(f"failed to handle all matches button: {e}")
-    driver.quit()
-    exit(0)
-
 player_data = pd.DataFrame(columns=["kills", "deaths", "assists"], dtype=int)
 
 # need to make sure to navigate back
 # for a given match, populate player_data with the proper stats
-def handle_finished_match():
+def handle_finished_match(match):
+    # scroll to match and click it
+    driver.execute_script("arguments[0].scrollIntoView(true);", match)
+    driver.execute_script("arguments[0].click();", match)
+
+    print(f"Clicked on match: {match}")
 
     print(f"waiting for table to load...")
     WebDriverWait(driver, 20).until(
@@ -128,16 +115,14 @@ def handle_finished_match():
         print(f"len of top_rows: {len(top_rows)}")
         print(f"len of bottom_rows: {len(bottom_rows)}")
 
+        # process rows
         for row in top_rows:
             handle_row(row)
 
         for row in bottom_rows:
             handle_row(row)
 
-
-
-
-
+        driver.back()
     except Exception as e:
         print(f"finding player and stats went wrong: {e}")    
         print(player_data)
@@ -154,7 +139,7 @@ def handle_row(row):
     # find player name and convert it to a string
     name = (row.find_element(By.XPATH, "./div/div/a/span[2]")).text
 
-    # first find wrapper for kills/deaths/assists; then find deaths and assists based on location of wrapper class
+    # first find wrapper for kills/deaths/assists; then find kills, deaths, and assists based on location of wrapper class
     kda = row.find_element(By.XPATH, "./div/following-sibling::div[2]")
 
     kills = kda.find_element(By.XPATH, "./div[1]/p")
@@ -165,21 +150,56 @@ def handle_row(row):
     deaths = int(deaths.text)
     assists = int(assists.text)
 
-    print(f"  player_name: {name}")
-    print(f"  kills: {kills}, type: {type(kills)}")
-    print(f"  deaths: {deaths}, type: {type(deaths)}")
-    print(f"  assists: {assists}, type: {type(assists)}")
+    # debug
+    # print(f"  player_name: {name}")
+    # print(f"  kills: {kills}, type: {type(kills)}")
+    # print(f"  deaths: {deaths}, type: {type(deaths)}")
+    # print(f"  assists: {assists}, type: {type(assists)}")
 
     if name not in player_data.index:
         player_data.loc[name] = [kills, deaths, assists]
     else:
-        print(f"Before update: {player_data.loc[name]}")  # Debug line
-        player_data.loc[name, "kills"] += kills
-        player_data.loc[name, "deaths"] += deaths
-        player_data.loc[name, "assists"] += assists
-        print(f"After update: {player_data.loc[name]}")  # Debug line
+        player_data.at[name, "kills"] = player_data.at[name, "kills"] + kills
+        player_data.at[name, "deaths"] = player_data.at[name, "deaths"] + deaths
+        player_data.at[name, "assists"] = player_data.at[name, "assists"] + assists
 
-handle_finished_match()
+
+# find and handle all matches
+try:
+    WebDriverWait(driver, 20).until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a.table-cell.c-global-match-link"))
+    )
+
+    matches = driver.find_elements(By.CSS_SELECTOR, "a.table-cell.c-global-match-link")
+    num_matches = len(matches)
+
+    for n in range(num_matches):
+        # find these again just in case the page changes
+        WebDriverWait(driver, 20).until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a.table-cell.c-global-match-link"))
+        )
+        matches = driver.find_elements(By.CSS_SELECTOR, "a.table-cell.c-global-match-link")
+
+        # just in case the results page shows the academy teams instead
+        while num_matches != len(matches):
+            print(f"num_matches ({num_matches}) != len(matches) {len(matches)}")
+            driver.refresh()
+            WebDriverWait(driver, 20).until(
+                EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a.table-cell.c-global-match-link"))
+            )
+            matches = driver.find_elements(By.CSS_SELECTOR, "a.table-cell.c-global-match-link")  
+
+        WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable(matches[n])
+        )
+        handle_finished_match(matches[n])
+        print(f"count: {n}")
+        print(player_data)
+except Exception as e:
+    print(f"error here!!: {e}")
+    print(player_data)
+    driver.quit()
+    exit(0)
 
 print(player_data)
 
