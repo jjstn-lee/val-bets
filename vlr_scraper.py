@@ -65,11 +65,23 @@ except Exception as e:
     driver.quit()
     exit(0)
 
+# find and click specific match
+# TODO: find and loop through all games eventually
 
-# TODO: find and loop through all games
+try:
+    WebDriverWait(driver, 20).until(
+        EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'col-container')]/div/div/following-sibling::div[2]"))
+    )
 
+    match_button = driver.find_element(By.XPATH, "//div[contains(@class, 'col-container')]/div/div/following-sibling::div[3]/a[1]")
+    print(f"{match_button.get_attribute("class")}")
 
+    match_button.click()
 
+except Exception as e:
+    print(f"on tournament matches page and failed to click specific match: {e}")
+    driver.quit()
+    exit(0)
 
 
 kda_data = pd.DataFrame(columns=["kills", "deaths", "assists", "KAST", "ADR", "ACS", "first_kills", "first_deaths"], dtype=int)
@@ -83,9 +95,6 @@ try:
 
     top_scoreboard = scoreboard.find_element(By.XPATH, "./div/following-sibling::div[1]")
     bottom_scoreboard = scoreboard.find_element(By.XPATH, "./div/following-sibling::div[2]")
-
-
-
 
 
 except Exception as e:
