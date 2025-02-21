@@ -83,10 +83,10 @@ except Exception as e:
     driver.quit()
     exit(0)
 
-player_data = pd.DataFrame(columns=["kills", "deaths", "assists"], dtype=int)
+kda_data = pd.DataFrame(columns=["kills", "deaths", "assists"], dtype=int)
 
 # need to make sure to navigate back
-# for a given match, populate player_data with the proper stats
+# for a given match, populate kda_data with the proper stats
 def handle_finished_match(match):
     # scroll to match and click it
     driver.execute_script("arguments[0].scrollIntoView(true);", match)
@@ -125,7 +125,7 @@ def handle_finished_match(match):
         driver.back()
     except Exception as e:
         print(f"finding player and stats went wrong: {e}")    
-        print(player_data)
+        print(kda_data)
         driver.quit()
         exit(0)
 
@@ -135,8 +135,7 @@ def handle_finished_match(match):
 # row is a WebElement
 def handle_row(row):
     try:
-
-        global player_data
+        global kda_data
 
         # find player name and convert it to a string
         name = (row.find_element(By.XPATH, "./div/div/a/span[2]")).text
@@ -152,23 +151,16 @@ def handle_row(row):
         deaths = int(deaths.text)
         assists = int(assists.text)
 
-        # debug
-        # print(f"  player_name: {name}")
-        # print(f"  kills: {kills}, type: {type(kills)}")
-        # print(f"  deaths: {deaths}, type: {type(deaths)}")
-        # print(f"  assists: {assists}, type: {type(assists)}")
-
-        if name not in player_data.index:
-            player_data.loc[name] = [kills, deaths, assists]
+        if name not in kda_data.index:
+            kda_data.loc[name] = [kills, deaths, assists]
         else:
-            player_data.at[name, "kills"] = player_data.at[name, "kills"] + kills
-            player_data.at[name, "deaths"] = player_data.at[name, "deaths"] + deaths
-            player_data.at[name, "assists"] = player_data.at[name, "assists"] + assists
+            kda_data.at[name, "kills"] = kda_data.at[name, "kills"] + kills
+            kda_data.at[name, "deaths"] = kda_data.at[name, "deaths"] + deaths
+            kda_data.at[name, "assists"] = kda_data.at[name, "assists"] + assists
     except Exception as e:
         print(f"error in handle_row: {e}")
         driver.quit()
         exit(0)
-
 
 # find and handle all matches
 try:
@@ -200,15 +192,17 @@ try:
         )
         handle_finished_match(matches[n])
         print(f"count: {n}")
-        print(player_data)
+        print(kda_data)
+
+    sleep(50)
 except Exception as e:
     print(f"error here!!: {e}")
-    print(player_data)
+    print(kda_data)
     driver.quit()
     exit(0)
 
-print(player_data)
+print(kda_data)
 
-player_data.to_csv('player_data.txt', index="True", sep=' ')
+kda_data.to_csv('kda_data.txt', index="True", sep=' ')
 
 sleep(10)

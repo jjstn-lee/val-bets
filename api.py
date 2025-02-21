@@ -4,12 +4,17 @@ import pandas as pd
 
 api = Flask(__name__)
 
-player_data = pd.read_csv('player_data.txt', index_col=0, sep=' ')
-print(player_data)
+kda_data = pd.read_csv('kda_data.txt', index_col=0, sep=' ')
+print(f"from flask server: {kda_data}")
 
-@api.route('/player_data', methods=['GET'])
+# returns specified player's kda; if none specified, then returns every player's kda
+@api.route('/kda_data', methods=['GET'])
 def get_player_data():
-    return player_data.to_json(orient="index")
+    player = request.args.get('player')
+    if player == None:
+        return kda_data.to_json(orient="index")
+    else:
+        return kda_data.loc[player].to_json(orient="index")
 
 if __name__ == '__main__':
    api.run(port=5000)
