@@ -74,8 +74,6 @@ try:
     )
 
     match_button = driver.find_element(By.XPATH, "//div[contains(@class, 'col-container')]/div/div/following-sibling::div[3]/a[1]")
-    print(f"{match_button.get_attribute("class")}")
-
     match_button.click()
 
 except Exception as e:
@@ -86,16 +84,21 @@ except Exception as e:
 
 kda_data = pd.DataFrame(columns=["kills", "deaths", "assists", "KAST", "ADR", "ACS", "first_kills", "first_deaths"], dtype=int)
 
+# scoreboards are all <table> elements
+# find all <table> elements; the scoreboards are the 3rd and 4th table elements in DOM
 try:
     WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, ".vm-stats-game.mod-active"))
     )
 
-    scoreboard = driver.find_element(By.CLASS_NAME, "vm-stats-container")
+    print(f"on scoreboards page")
 
-    top_scoreboard = scoreboard.find_element(By.XPATH, "./div/following-sibling::div[1]")
-    bottom_scoreboard = scoreboard.find_element(By.XPATH, "./div/following-sibling::div[2]")
+    tables = driver.find_elements(By.CSS_SELECTOR, ".wf-table-inset.mod-overview")
 
+    print(f"len of tables: [{len(tables)}]")
+
+    top_scoreboard = tables[2]
+    bottom_scoreboard = tables[3]
 
 except Exception as e:
     print(f"on tournament page and failed to parse table: {e}")
