@@ -82,6 +82,14 @@ except Exception as e:
     exit(0)
 
 
+
+def handle_scoreboard(scoreboard):
+    if (scoreboard == None) or (scoreboard.tag_name.lower() != "table"):
+        print(f"WebElement passed to 'handle_scoreboard' is not a <table> element")
+        return        
+
+
+
 kda_data = pd.DataFrame(columns=["kills", "deaths", "assists", "KAST", "ADR", "ACS", "first_kills", "first_deaths"], dtype=int)
 
 # scoreboards are all <table> elements
