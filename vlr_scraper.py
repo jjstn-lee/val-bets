@@ -66,39 +66,24 @@ except Exception as e:
     driver.quit()
     exit(0)
 
-# find and click specific match
-# TODO: find and loop through all games eventually
-
-
-
-
-
-# def handle_scoreboard(scoreboard):
-#     if (scoreboard == None) or (scoreboard.tag_name.lower() != "table"):
-#         print(f"WebElement passed to 'handle_scoreboard' is not a <table> element")
-#         return
-    
-
-
-
 def handle_row(tr_element, kda_data):
     player = (tr_element.find_element(By.XPATH, "(./td)[1]/div/a/div")).text
-    print(f"player: {player}")
+    # print(f"player: {player}")
 
     r20_t = float((tr_element.find_element(By.XPATH, "(./td)[3]/span/span[1]")).get_attribute("textContent"))
     r20_ct = float((tr_element.find_element(By.XPATH, "(./td)[3]/span/span[2]")).get_attribute("textContent"))
     r20_both = float((tr_element.find_element(By.XPATH, "(./td)[3]/span/span[3]")).get_attribute("textContent"))
-    print(f"rating 2.0 values: {r20_t}, {r20_ct}, {r20_both}")
+    # print(f"rating 2.0 values: {r20_t}, {r20_ct}, {r20_both}")
 
     acs_t = int((tr_element.find_element(By.XPATH, "(./td)[4]/span/span[2]")).get_attribute("textContent"))
     acs_ct = int((tr_element.find_element(By.XPATH, "(./td)[4]/span/span[3]")).get_attribute("textContent"))
     acs_both = int((tr_element.find_element(By.XPATH, "(./td)[4]/span/span[1]")).get_attribute("textContent"))
-    print(f"acs values: {acs_t}, {acs_ct}, {acs_both}")
+    # print(f"acs values: {acs_t}, {acs_ct}, {acs_both}")
 
     kills_t = int((tr_element.find_element(By.XPATH, "(./td)[5]/span/span[2]")).get_attribute("textContent"))
     kills_ct = int((tr_element.find_element(By.XPATH, "(./td)[5]/span/span[3]")).get_attribute("textContent"))
     kills_both = int((tr_element.find_element(By.XPATH, "(./td)[5]/span/span[1]")).get_attribute("textContent"))
-    print(f"kills values: {kills_t}, {kills_ct}, {kills_both}")
+    # print(f"kills values: {kills_t}, {kills_ct}, {kills_both}")
 
     deaths_both = int((tr_element.find_element(By.XPATH, "(./td)[6]/span/span[2]/span[1]")).get_attribute("textContent"))
     deaths_t = int((tr_element.find_element(By.XPATH, "(./td)[6]/span/span[2]/span[2]")).get_attribute("textContent"))
@@ -171,23 +156,14 @@ def handle_scoreboard(scoreboard, kda_data):
 kda_data = pd.DataFrame(columns=["kills", "deaths", "assists", "KAST", "ADR", "ACS", "first_kills", "first_deaths"], dtype=int)
 
 def handle_match(match_button, kda_data):
-
-    print(f"in handle_match...")
-
     match_button.click()
-
-    print(f"successfully found and clicked match_button")
 
     WebDriverWait(driver, 20).until(
             EC.presence_of_all_elements_located((By.XPATH, "//tbody"))
         )
     
-    print(f"successfully waited for tbody elements to load")
-    
     top_scoreboard = driver.find_element(By.XPATH, "(//tbody)[3]")
     bottom_scoreboard = driver.find_element(By.XPATH, "(//tbody)[4]")
-
-    print(f"successfully loaded scoreboards")
 
     handle_scoreboard(top_scoreboard, kda_data)
     handle_scoreboard(bottom_scoreboard, kda_data)
@@ -238,29 +214,6 @@ except Exception as e:
     print(f"on tournament matches page and failed to click specific match: {e}")
     driver.quit()
     exit(0)
-
-
-
-# # scoreboards are all <table> elements
-# # find all <table> elements; the scoreboards are the 3rd and 4th table elements in DOM
-# try:
-#     WebDriverWait(driver, 20).until(
-#         EC.presence_of_element_located((By.CSS_SELECTOR, ".vm-stats-game.mod-active"))
-#     )
-
-#     print(f"on scoreboards page")
-
-#     tables = driver.find_elements(By.CSS_SELECTOR, ".wf-table-inset.mod-overview")
-
-#     print(f"len of tables: [{len(tables)}]")
-
-#     top_scoreboard = tables[2]
-#     bottom_scoreboard = tables[3]
-
-# except Exception as e:
-#     print(f"on tournament page and failed to parse table: {e}")
-#     driver.quit()
-#     exit(0)
 
 print(kda_data)
 
