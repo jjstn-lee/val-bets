@@ -68,13 +68,114 @@ except Exception as e:
 # find and click specific match
 # TODO: find and loop through all games eventually
 
+
+
+
+
+# def handle_scoreboard(scoreboard):
+#     if (scoreboard == None) or (scoreboard.tag_name.lower() != "table"):
+#         print(f"WebElement passed to 'handle_scoreboard' is not a <table> element")
+#         return
+    
+
+
+
+def handle_player(tr_element, kda_data):
+    player = (tr_element.find_element(By.XPATH, "(./td)[1]"))
+
+    # print(player)
+
+
+def handle_scoreboard(scoreboard, kda_data):
+    # find the <tr> children (players) of scoreboard
+    tr_elements = scoreboard.find_elements(By.XPATH, "./*")
+
+    print(f"len of tr_elements: {len(tr_elements)}")
+
+    # for n in tr_elements:
+        # print(f"printing 'n': {n.get_attribute("style")}")
+        # handle_player(n, kda_data)
+
+
+
+
+
+kda_data = pd.DataFrame(columns=["kills", "deaths", "assists", "KAST", "ADR", "ACS", "first_kills", "first_deaths"], dtype=int)
+
+def handle_match(match_button, kda_data):
+
+    print(f"in handle_match...")
+
+    match_button.click()
+
+    print(f"successfully found and clicked match_button")
+
+    WebDriverWait(driver, 20).until(
+            EC.presence_of_all_elements_located((By.XPATH, "//tbody"))
+        )
+    
+    print(f"successfully waited for tbody elements to load")
+    
+    top_scoreboard = driver.find_element(By.XPATH, "(//tbody)[3]")
+    bottom_scoreboard = driver.find_element(By.XPATH, "(//tbody)[4]")
+
+    print(f"successfully loaded scoreboards")
+
+    # handle_scoreboard(top_scoreboard, kda_data)
+    # handle_scoreboard(bottom_scoreboard, kda_data)
+
+    driver.back()
+
 try:
     WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'col-container')]/div/div/following-sibling::div[2]"))
     )
 
-    match_button = driver.find_element(By.XPATH, "//div[contains(@class, 'col-container')]/div/div/following-sibling::div[3]/a[1]")
-    match_button.click()
+    # match_buttons = driver.find_elements(By.XPATH, "//div[contains(@class, 'col-container')]/div/div/following-sibling::div[3]/a[1]")
+
+    wf_cards = driver.find_elements(By.XPATH, '//*[@class="wf-card"]')
+
+    print(f"len of wf_cards: {len(wf_cards)}")
+
+    match_buttons = []
+
+    for n in wf_cards:
+        children = n.find_elements(By.XPATH, "./*")
+        match_buttons.extend(children)
+        print(f"len of children: {len(children)}")
+
+
+    print(f"num_matches: {len(match_buttons)}")
+        
+    num_matches = len(match_buttons)
+
+    for index in range(num_matches):
+        # debug print
+        # print(f"{n.get_attribute('href')}")
+        WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'col-container')]/div/div/following-sibling::div[2]"))
+        )
+
+        wf_cards = driver.find_elements(By.XPATH, '//*[@class="wf-card"]')
+
+        children = []
+        for n in wf_cards:
+            temp = n.find_elements(By.XPATH, "./*")
+            children.extend(temp)
+
+        if len(children) != num_matches:
+            print(f"COULD NOT FIND ALL BUTTONS AGAIN!!")
+            print(f"children length: {len(children)}")
+            print(f"num_matches: {num_matches}")
+        else:
+            print(f"handling match #{index}...")
+            handle_match(children[index], kda_data)
+
+    print(f"now after for-loop...")
+
+
+    
+        
 
 except Exception as e:
     print(f"on tournament matches page and failed to click specific match: {e}")
@@ -83,35 +184,26 @@ except Exception as e:
 
 
 
-def handle_scoreboard(scoreboard):
-    if (scoreboard == None) or (scoreboard.tag_name.lower() != "table"):
-        print(f"WebElement passed to 'handle_scoreboard' is not a <table> element")
-        return        
+# # scoreboards are all <table> elements
+# # find all <table> elements; the scoreboards are the 3rd and 4th table elements in DOM
+# try:
+#     WebDriverWait(driver, 20).until(
+#         EC.presence_of_element_located((By.CSS_SELECTOR, ".vm-stats-game.mod-active"))
+#     )
 
+#     print(f"on scoreboards page")
 
+#     tables = driver.find_elements(By.CSS_SELECTOR, ".wf-table-inset.mod-overview")
 
-kda_data = pd.DataFrame(columns=["kills", "deaths", "assists", "KAST", "ADR", "ACS", "first_kills", "first_deaths"], dtype=int)
+#     print(f"len of tables: [{len(tables)}]")
 
-# scoreboards are all <table> elements
-# find all <table> elements; the scoreboards are the 3rd and 4th table elements in DOM
-try:
-    WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, ".vm-stats-game.mod-active"))
-    )
+#     top_scoreboard = tables[2]
+#     bottom_scoreboard = tables[3]
 
-    print(f"on scoreboards page")
-
-    tables = driver.find_elements(By.CSS_SELECTOR, ".wf-table-inset.mod-overview")
-
-    print(f"len of tables: [{len(tables)}]")
-
-    top_scoreboard = tables[2]
-    bottom_scoreboard = tables[3]
-
-except Exception as e:
-    print(f"on tournament page and failed to parse table: {e}")
-    driver.quit()
-    exit(0)
+# except Exception as e:
+#     print(f"on tournament page and failed to parse table: {e}")
+#     driver.quit()
+#     exit(0)
 
 
 sleep(10)   

@@ -16,7 +16,5 @@ def get_player_data():
     else:
         return kda_data.loc[player].to_json(orient="index")
 
-
-
 if __name__ == '__main__':
    api.run(port=5000)
