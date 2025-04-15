@@ -1,3 +1,4 @@
+import re
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -80,11 +81,70 @@ except Exception as e:
 
 
 
-def handle_player(tr_element, kda_data):
-    player = (tr_element.find_element(By.XPATH, "(./td)[1]"))
+def handle_row(tr_element, kda_data):
+    player = (tr_element.find_element(By.XPATH, "(./td)[1]/div/a/div")).text
+    print(f"player: {player}")
 
-    # print(player)
+    r20_t = (tr_element.find_element(By.XPATH, "(./td)[3]/span/span[1]")).get_attribute("textContent")
+    r20_ct = (tr_element.find_element(By.XPATH, "(./td)[3]/span/span[2]")).get_attribute("textContent")
+    r20_both = (tr_element.find_element(By.XPATH, "(./td)[3]/span/span[3]")).get_attribute("textContent")
+    print(f"rating 2.0 values: {r20_t}, {r20_ct}, {r20_both}")
 
+    acs_t = (tr_element.find_element(By.XPATH, "(./td)[4]/span/span[2]")).get_attribute("textContent")
+    acs_ct = (tr_element.find_element(By.XPATH, "(./td)[4]/span/span[3]")).get_attribute("textContent")
+    acs_both = (tr_element.find_element(By.XPATH, "(./td)[4]/span/span[1]")).get_attribute("textContent")
+    print(f"acs values: {acs_t}, {acs_ct}, {acs_both}")
+
+    kills_t = (tr_element.find_element(By.XPATH, "(./td)[5]/span/span[2]")).get_attribute("textContent")
+    kills_ct = (tr_element.find_element(By.XPATH, "(./td)[5]/span/span[3]")).get_attribute("textContent")
+    kills_both = (tr_element.find_element(By.XPATH, "(./td)[5]/span/span[1]")).get_attribute("textContent")
+    print(f"kills values: {kills_t}, {kills_ct}, {kills_both}")
+
+    deaths_both = (tr_element.find_element(By.XPATH, "(./td)[6]/span/span[2]/span[1]")).get_attribute("textContent")
+    deaths_t = (tr_element.find_element(By.XPATH, "(./td)[6]/span/span[2]/span[2]")).get_attribute("textContent")
+    deaths_ct = (tr_element.find_element(By.XPATH, "(./td)[6]/span/span[2]/span[3]")).get_attribute("textContent")
+    print(f"death values: {deaths_t}, {deaths_ct}, {deaths_both}")
+
+    assists_both = (tr_element.find_element(By.XPATH, "(./td)[7]/span/span[1]")).get_attribute("textContent")
+    assists_t = (tr_element.find_element(By.XPATH, "(./td)[7]/span/span[2]")).get_attribute("textContent")
+    assists_ct = (tr_element.find_element(By.XPATH, "(./td)[7]/span/span[3]")).get_attribute("textContent")
+    print(f"assist values: {assists_t}, {assists_ct}, {assists_both}")
+
+    kda_diff_both = (tr_element.find_element(By.XPATH, "(./td)[8]/span/span[1]")).get_attribute("textContent")
+    kda_diff_t = (tr_element.find_element(By.XPATH, "(./td)[8]/span/span[2]")).get_attribute("textContent")
+    kda_diff_ct = (tr_element.find_element(By.XPATH, "(./td)[8]/span/span[3]")).get_attribute("textContent")
+    print(f"kda-diff values: {kda_diff_both}, {kda_diff_t}, {kda_diff_ct}")
+
+    kast_both = (tr_element.find_element(By.XPATH, "(./td)[9]/span/span[1]")).get_attribute("textContent")
+    kast_t = (tr_element.find_element(By.XPATH, "(./td)[9]/span/span[2]")).get_attribute("textContent")
+    kast_ct = (tr_element.find_element(By.XPATH, "(./td)[9]/span/span[3]")).get_attribute("textContent")
+    kast_both = re.sub(r'%', '', kast_both)
+    kast_t = re.sub(r'%', '', kast_t)
+    kast_ct = re.sub(r'%', '', kast_ct)
+    print(f"kast values: {kast_both}, {kast_t}, {kast_ct}")
+
+    adr_both = (tr_element.find_element(By.XPATH, "(./td)[10]/span/span[1]")).get_attribute("textContent")
+    adr_t = (tr_element.find_element(By.XPATH, "(./td)[10]/span/span[2]")).get_attribute("textContent")
+    adr_ct = (tr_element.find_element(By.XPATH, "(./td)[10]/span/span[3]")).get_attribute("textContent")
+    print(f"adr values: {adr_both}, {adr_t}, {adr_ct}")
+
+    hs_both = (tr_element.find_element(By.XPATH, "(./td)[11]/span/span[1]")).get_attribute("textContent")
+    hs_t = (tr_element.find_element(By.XPATH, "(./td)[11]/span/span[2]")).get_attribute("textContent")
+    hs_ct = (tr_element.find_element(By.XPATH, "(./td)[11]/span/span[3]")).get_attribute("textContent")
+    hs_both = re.sub(r'%', '', hs_both)
+    hs_t = re.sub(r'%', '', hs_t)
+    hs_ct = re.sub(r'%', '', hs_ct)
+    print(f"headshot values: {hs_both}, {hs_t}, {hs_ct}")
+
+    fb_both = (tr_element.find_element(By.XPATH, "(./td)[12]/span/span[1]")).get_attribute("textContent")
+    fb_t = (tr_element.find_element(By.XPATH, "(./td)[12]/span/span[2]")).get_attribute("textContent")
+    fb_ct = (tr_element.find_element(By.XPATH, "(./td)[12]/span/span[3]")).get_attribute("textContent")
+    print(f"first_blood values: {fb_both}, {fb_t}, {fb_ct}")
+
+    fd_both = (tr_element.find_element(By.XPATH, "(./td)[13]/span/span[1]")).get_attribute("textContent")
+    fd_t = (tr_element.find_element(By.XPATH, "(./td)[13]/span/span[2]")).get_attribute("textContent")
+    fd_ct = (tr_element.find_element(By.XPATH, "(./td)[13]/span/span[3]")).get_attribute("textContent")
+    print(f"first_death values: {fd_both}, {fd_t}, {fd_ct}")
 
 def handle_scoreboard(scoreboard, kda_data):
     # find the <tr> children (players) of scoreboard
@@ -92,13 +152,8 @@ def handle_scoreboard(scoreboard, kda_data):
 
     print(f"len of tr_elements: {len(tr_elements)}")
 
-    # for n in tr_elements:
-        # print(f"printing 'n': {n.get_attribute("style")}")
-        # handle_player(n, kda_data)
-
-
-
-
+    for n in tr_elements:
+        handle_row(n, kda_data)
 
 kda_data = pd.DataFrame(columns=["kills", "deaths", "assists", "KAST", "ADR", "ACS", "first_kills", "first_deaths"], dtype=int)
 
@@ -121,8 +176,8 @@ def handle_match(match_button, kda_data):
 
     print(f"successfully loaded scoreboards")
 
-    # handle_scoreboard(top_scoreboard, kda_data)
-    # handle_scoreboard(bottom_scoreboard, kda_data)
+    handle_scoreboard(top_scoreboard, kda_data)
+    handle_scoreboard(bottom_scoreboard, kda_data)
 
     driver.back()
 
