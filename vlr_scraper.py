@@ -66,6 +66,7 @@ except Exception as e:
     driver.quit()
     exit(0)
 
+# takes rows and populates kda_data
 def handle_row(tr_element, kda_data):
     player = (tr_element.find_element(By.XPATH, "(./td)[1]/div/a/div")).text
     # print(f"player: {player}")
@@ -88,17 +89,17 @@ def handle_row(tr_element, kda_data):
     deaths_both = int((tr_element.find_element(By.XPATH, "(./td)[6]/span/span[2]/span[1]")).get_attribute("textContent"))
     deaths_t = int((tr_element.find_element(By.XPATH, "(./td)[6]/span/span[2]/span[2]")).get_attribute("textContent"))
     deaths_ct = int((tr_element.find_element(By.XPATH, "(./td)[6]/span/span[2]/span[3]")).get_attribute("textContent"))
-    print(f"death values: {deaths_t}, {deaths_ct}, {deaths_both}")
+    # print(f"death values: {deaths_t}, {deaths_ct}, {deaths_both}")
 
     assists_both = int((tr_element.find_element(By.XPATH, "(./td)[7]/span/span[1]")).get_attribute("textContent"))
     assists_t = int((tr_element.find_element(By.XPATH, "(./td)[7]/span/span[2]")).get_attribute("textContent"))
     assists_ct = int((tr_element.find_element(By.XPATH, "(./td)[7]/span/span[3]")).get_attribute("textContent"))
-    print(f"assist values: {assists_t}, {assists_ct}, {assists_both}")
+    # print(f"assist values: {assists_t}, {assists_ct}, {assists_both}")
 
     kda_diff_both = int((tr_element.find_element(By.XPATH, "(./td)[8]/span/span[1]")).get_attribute("textContent"))
     kda_diff_t = int((tr_element.find_element(By.XPATH, "(./td)[8]/span/span[2]")).get_attribute("textContent"))
     kda_diff_ct = int((tr_element.find_element(By.XPATH, "(./td)[8]/span/span[3]")).get_attribute("textContent"))
-    print(f"kda-diff values: {kda_diff_both}, {kda_diff_t}, {kda_diff_ct}")
+    # print(f"kda-diff values: {kda_diff_both}, {kda_diff_t}, {kda_diff_ct}")
 
     kast_both = (tr_element.find_element(By.XPATH, "(./td)[9]/span/span[1]")).get_attribute("textContent")
     kast_t = (tr_element.find_element(By.XPATH, "(./td)[9]/span/span[2]")).get_attribute("textContent")
@@ -106,12 +107,12 @@ def handle_row(tr_element, kda_data):
     kast_both = float(re.sub(r'%', '', kast_both))
     kast_t = float(re.sub(r'%', '', kast_t))
     kast_ct = float(re.sub(r'%', '', kast_ct))
-    print(f"kast values: {kast_both}, {kast_t}, {kast_ct}")
+    # print(f"kast values: {kast_both}, {kast_t}, {kast_ct}")
 
     adr_both = int((tr_element.find_element(By.XPATH, "(./td)[10]/span/span[1]")).get_attribute("textContent"))
     adr_t = int((tr_element.find_element(By.XPATH, "(./td)[10]/span/span[2]")).get_attribute("textContent"))
     adr_ct = int((tr_element.find_element(By.XPATH, "(./td)[10]/span/span[3]")).get_attribute("textContent"))
-    print(f"adr values: {adr_both}, {adr_t}, {adr_ct}")
+    # print(f"adr values: {adr_both}, {adr_t}, {adr_ct}")
 
     hs_both = (tr_element.find_element(By.XPATH, "(./td)[11]/span/span[1]")).get_attribute("textContent")
     hs_t = (tr_element.find_element(By.XPATH, "(./td)[11]/span/span[2]")).get_attribute("textContent")
@@ -119,20 +120,21 @@ def handle_row(tr_element, kda_data):
     hs_both = float(re.sub(r'%', '', hs_both))
     hs_t = float(re.sub(r'%', '', hs_t))
     hs_ct = float(re.sub(r'%', '', hs_ct))
-    print(f"headshot values: {hs_both}, {hs_t}, {hs_ct}")
+    # print(f"headshot values: {hs_both}, {hs_t}, {hs_ct}")
 
     fb_both = int((tr_element.find_element(By.XPATH, "(./td)[12]/span/span[1]")).get_attribute("textContent"))
     fb_t = int((tr_element.find_element(By.XPATH, "(./td)[12]/span/span[2]")).get_attribute("textContent"))
     fb_ct = int((tr_element.find_element(By.XPATH, "(./td)[12]/span/span[3]")).get_attribute("textContent"))
-    print(f"first_blood values: {fb_both}, {fb_t}, {fb_ct}")
+    # print(f"first_blood values: {fb_both}, {fb_t}, {fb_ct}")
 
     fd_both = int((tr_element.find_element(By.XPATH, "(./td)[13]/span/span[1]")).get_attribute("textContent"))
     fd_t = int((tr_element.find_element(By.XPATH, "(./td)[13]/span/span[2]")).get_attribute("textContent"))
     fd_ct = int((tr_element.find_element(By.XPATH, "(./td)[13]/span/span[3]")).get_attribute("textContent"))
-    print(f"first_death values: {fd_both}, {fd_t}, {fd_ct}")
+    # print(f"first_death values: {fd_both}, {fd_t}, {fd_ct}")
 
     if player not in kda_data.index:
-        kda_data.loc[player] = [kills_both, deaths_both, assists_both, kast_both, adr_both, acs_both, fb_both, fd_both]
+        kda_data.loc[player] = [kills_both, deaths_both, assists_both, kast_both, adr_both, acs_both, fb_both, fd_both, 0]
+
     else:
         kda_data.at[player, "kills"] = kda_data.at[player, "kills"] + kills_both
         kda_data.at[player, "deaths"] = kda_data.at[player, "deaths"] + deaths_both
@@ -142,18 +144,16 @@ def handle_row(tr_element, kda_data):
         kda_data.at[player, "ACS"] = kda_data.at[player, "ACS"] + acs_both
         kda_data.at[player, "first_kills"] = kda_data.at[player, "first_kills"] + fb_both
         kda_data.at[player, "first_deaths"] = kda_data.at[player, "first_deaths"] + fd_both
-    
+        kda_data.at[player, "num_matches"] = kda_data.at[player, "num_matches"] + 1
         
 def handle_scoreboard(scoreboard, kda_data):
     # find the <tr> children (players) of scoreboard
     tr_elements = scoreboard.find_elements(By.XPATH, "./*")
 
-    print(f"len of tr_elements: {len(tr_elements)}")
-
     for n in tr_elements:
         handle_row(n, kda_data)
 
-kda_data = pd.DataFrame(columns=["kills", "deaths", "assists", "KAST", "ADR", "ACS", "first_kills", "first_deaths"], dtype=int)
+kda_data = pd.DataFrame(columns=["kills", "deaths", "assists", "KAST", "ADR", "ACS", "first_kills", "first_deaths", "num_matches"], dtype=int)
 
 def handle_match(match_button, kda_data):
     match_button.click()
@@ -179,17 +179,14 @@ try:
 
     wf_cards = driver.find_elements(By.XPATH, '//*[@class="wf-card"]')
 
-    print(f"len of wf_cards: {len(wf_cards)}")
 
     match_buttons = []
 
     for n in wf_cards:
         children = n.find_elements(By.XPATH, "./*")
         match_buttons.extend(children)
-        print(f"len of children: {len(children)}")
 
 
-    print(f"num_matches: {len(match_buttons)}")
         
     num_matches = len(match_buttons)
 
@@ -208,7 +205,6 @@ try:
             children.extend(temp)
     
         handle_match(children[index], kda_data)
-        print(kda_data)
 
 except Exception as e:
     print(f"on tournament matches page and failed to click specific match: {e}")
@@ -216,5 +212,6 @@ except Exception as e:
     exit(0)
 
 print(kda_data)
+kda_data.to_csv('kda_data.csv', index=True, sep=',', index_label="player")
 
-sleep(10)   
+sleep(10)
