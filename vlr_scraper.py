@@ -8,9 +8,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
+from selenium.webdriver.chrome.options import Options
 import pandas as pd
 
-driver = webdriver.Chrome()
+options = Options()
+options.add_argument('--headless')
+options.add_argument('--disable-gpu') 
+
+driver = webdriver.Chrome(options=options)
 driver.get("https://www.vlr.gg/")
 
 # wait for website to load
@@ -39,9 +44,35 @@ try:
         EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, "North America"))
     ).click()
 except Exception as e:
-    print(f"failed to click 'Events' button: {e}")
+    print(f"failed to click 'North America' button: {e}")
     driver.quit()
     exit(0)
+    
+try:
+    containers = WebDriverWait(driver, 20).until(
+        # wait until both events-container-col <div> are visible
+        lambda d: d.find_elements(By.CLASS_NAME, "events-container-col") if len(d.find_elements(By.CLASS_NAME, "events-container-col")) == 2 else False
+    )
+    
+    all_a_tags = []
+    
+    for container in containers:
+        links = container.find_elements(By.XPATH, "./a")
+        all_a_tags.append[links]
+        
+    
+
+        
+        
+        
+    
+    
+
+except Exception as e:
+    print(f"failed to parse events-container-col (aka upcoming vs. completed events)")
+    driver.quit()
+    exit(0)
+
 
 # find and click 'Champions Tour 2025: Americas Kickoff"
 try:
