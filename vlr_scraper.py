@@ -49,27 +49,32 @@ except Exception as e:
     exit(0)
     
 try:
+    print(f"waiting for both containers to be visible...\n")
     containers = WebDriverWait(driver, 20).until(
         # wait until both events-container-col <div> are visible
         lambda d: d.find_elements(By.CLASS_NAME, "events-container-col") if len(d.find_elements(By.CLASS_NAME, "events-container-col")) == 2 else False
     )
     
-    all_a_tags = []
-    
+    print(f"parsing matches...\n")
+    vct_matches = []
     for container in containers:
-        links = container.find_elements(By.XPATH, "./a")
-        all_a_tags.append[links]
-        
-    
+        all_matches = container.find_elements(By.XPATH, "./a")
 
-        
-        
-        
-    
-    
+        for match in all_matches:
+            href = match.get_attribute("href")
+            # print(f"parsing match: {href}...\n")
+            if "vct" in href or "masters" in href:
+                print(f"  found official match: {href}")
+                vct_matches.append(match)
+
+    print(f"out of for loop")
+    for match in vct_matches:
+        print(f"official match: {match.get_attribute("href")}")
+
+
 
 except Exception as e:
-    print(f"failed to parse events-container-col (aka upcoming vs. completed events)")
+    print(f"failed to parse events-container-col (aka upcoming vs. completed events): {e}")
     driver.quit()
     exit(0)
 
