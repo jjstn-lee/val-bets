@@ -11,6 +11,21 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
 import pandas as pd
 
+from dotenv import load_dotenv
+from supabase import create_client, Client
+import os
+
+load_dotenv()  # Load variables from .env
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_KEY")
+supabase: Client = create_client(url, key)
+
+print(f"done with creating supabase client")
+print(supabase)
+
 options = Options()
 options.add_argument('--headless')
 options.add_argument('--disable-gpu') 
@@ -47,7 +62,10 @@ except Exception as e:
     print(f"failed to click 'North America' button: {e}")
     driver.quit()
     exit(0)
-    
+
+# all VCT matches as links (<a> tags) 
+vct_matches = []
+
 try:
     print(f"waiting for both containers to be visible...\n")
     containers = WebDriverWait(driver, 20).until(
@@ -56,7 +74,8 @@ try:
     )
     
     print(f"parsing matches...\n")
-    vct_matches = []
+
+
     for container in containers:
         all_matches = container.find_elements(By.XPATH, "./a")
 
@@ -65,11 +84,11 @@ try:
             # print(f"parsing match: {href}...\n")
             if "vct" in href or "masters" in href:
                 print(f"  found official match: {href}")
-                vct_matches.append(match)
+                vct_matches.append(href)
 
     print(f"out of for loop")
     for match in vct_matches:
-        print(f"official match: {match.get_attribute("href")}")
+        print(f"official match: {match}")
 
 
 
@@ -78,16 +97,12 @@ except Exception as e:
     driver.quit()
     exit(0)
 
+# try:
+#     for href in vct_matches:
 
-# find and click 'Champions Tour 2025: Americas Kickoff"
-try:
-    WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, "Champions Tour 2025: Americas Kickoff"))
-    ).click()
+
 except Exception as e:
-    print(f"failed to click 'Champions Tour 2025: Americas Kickoff' button: {e}")
-    driver.quit()
-    exit(0)
+    print(f"failed to finish clicking vct match buttons: {e}")
 
 # find and click proper 'Matches' button based on navbar position in DOM
 try:
